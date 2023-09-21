@@ -25,37 +25,64 @@ def existe(lista, elem):
 
 #Exercicio 1.4
 def concat(l1, l2):
-	
-	if not l1:
-		return l2
-	elif not l2:
-		return l1
-	else:
-		return l2 + l1[1:]
+    # Caso base: se uma das listas estiver vazia, retornar a outra lista
+    if not l1:
+        return l2
+    if not l2:
+        return l1
+    # Caso recursivo: remover o primeiro elemento de l1 e concatenar com o resultado da chamada recursiva
+    return [l1[0]] + concat(l1[1:], l2)
 
 #Exercicio 1.5
 def inverte(lista):
-	pass
+	if not lista:
+		return []
+	return [lista[-1]]+inverte(lista[:-1])
 
 #Exercicio 1.6
 def capicua(lista):
-	pass
+	if len(lista) <= 1:
+		return True
+	if lista[-1] == lista[0]:
+		return capicua(lista[1:-1])
+	else:
+		return False
 
 #Exercicio 1.7
 def concat_listas(lista):
-	pass
+	if not lista:
+		return []
+	else:
+		return concat(lista[0], concat_listas(lista[1:]))
+	
 
 #Exercicio 1.8
 def substitui(lista, original, novo):
-	pass
+	if not lista:
+		return []
+	elif lista[0] == original:
+		return [novo] + substitui(lista[1:],original,novo)
+	else:
+		return [lista[0]] + substitui(lista[1:],original,novo)
 
 #Exercicio 1.9
 def fusao_ordenada(lista1, lista2):
-	pass
+	if not lista1 or not lista2:
+		return concat(lista1, lista2)
+	elif lista1[0] < lista2[0]:
+		return concat([lista1[0]], fusao_ordenada(lista1[1:], lista2))
+	else:
+		return concat([lista2[0]], fusao_ordenada(lista1, lista2[1:]))
+
 
 #Exercicio 1.10
 def lista_subconjuntos(lista):
-	pass
+	if not lista:
+		return [[]]
+	else:
+		elemento = lista[0]
+		subconjuntos = lista_subconjuntos(lista[1:])
+		return concat(subconjuntos, [[elemento] + subset for subset in subconjuntos])
 
 
 #Exercicio 2.1
