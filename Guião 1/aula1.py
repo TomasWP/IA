@@ -130,8 +130,18 @@ def juntar(l1, l2):
 
 #Exercicio 3.4
 def menor(lista):
-	pass
+	if not lista:
+		return None
+	if len(lista) == 1:
+		return lista[0]
+	
+	menor_da_sublista = menor(lista[1:])
+
+	if lista[0] < menor_da_sublista:
+		return lista[0]
+	else:
+		return menor_da_sublista
 
 #Exercicio 3.6
 def max_min(lista):
-	pass
+	return menor(lista),lista.pop(lista.index(menor(lista)))
