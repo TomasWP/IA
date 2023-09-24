@@ -86,24 +86,47 @@ def lista_subconjuntos(lista):
 
 
 #Exercicio 2.1
+numeros = []
+letras = []
 def separar(lista):
-	pass
+    if not lista:
+        return (numeros, letras)
+    else:
+        numeros.append(lista[0][0])
+        letras.append(lista[0][1])
+        return separar(lista[1:])
 
 #Exercicio 2.2
+contador = 0
 def remove_e_conta(lista, elem):
-	pass
+    global contador
+
+    if not lista:
+        return [], contador
+    elif lista[0] == elem:
+        contador += 1
+        return remove_e_conta(lista[1:], elem)
+    else:
+        lista_restante, _ = remove_e_conta(lista[1:], elem)
+        return [lista[0]] + lista_restante, contador
 
 #Exercicio 3.1
 def cabeca(lista):
-	pass
+	return lista[0]
 
 #Exercicio 3.2
 def cauda(lista):
-	pass
+	return lista[1:]
 
 #Exercicio 3.3
 def juntar(l1, l2):
-    pass
+	if not l1 or not l2:
+		return []
+	elif len(l1) != len(l2):
+		return None
+	else:
+		return [(l1[0],l2[0])] + juntar(l1[1:], l2[1:])
+	
 
 #Exercicio 3.4
 def menor(lista):
