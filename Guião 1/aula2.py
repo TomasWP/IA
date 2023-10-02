@@ -52,7 +52,7 @@ def menor_e_resto_ordem(lista, f):
         menor = menor_ordem(lista[1:],f)
         if f(lista[0], menor):
             menor = lista[0]
-        lista.pop(lista.index(menor))
+            lista.pop(lista.index(menor))
         return (menor, lista)
 
 #Exercicio 5.2

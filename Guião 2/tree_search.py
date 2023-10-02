@@ -65,6 +65,7 @@ class SearchNode:
     def __init__(self,state,parent): 
         self.state = state
         self.parent = parent
+        self.depth = 0	
     def __str__(self):
         return "no(" + str(self.state) + "," + str(self.parent) + ")"
     def __repr__(self):
@@ -87,21 +88,26 @@ class SearchTree:
             return [node.state]
         path = self.get_path(node.parent)
         path += [node.state]
+        node.depth = len(path) - 1
         return(path)
 
     # procurar a solucao
-    def search(self):
+    def search(self,limit=9):
+
         while self.open_nodes != []:
             node = self.open_nodes.pop(0)
             if self.problem.goal_test(node.state):
                 self.solution = node
                 return self.get_path(node)
             lnewnodes = []
-            for a in self.problem.domain.actions(node.state):
-                newstate = self.problem.domain.result(node.state,a)
-                newnode = SearchNode(newstate,node)
-                lnewnodes.append(newnode)
-            self.add_to_open(lnewnodes)
+
+            if node.depth <= limit:
+                for a in self.problem.domain.actions(node.state):
+                    newstate = self.problem.domain.result(node.state,a)
+                    newnode = SearchNode(newstate,node)
+                    if newstate not in self.get_path(node):
+                        lnewnodes.append(newnode)
+                self.add_to_open(lnewnodes)
         return None
 
     # juntar novos nos a lista de nos abertos de acordo com a estrategia
@@ -112,4 +118,8 @@ class SearchTree:
             self.open_nodes[:0] = lnewnodes
         elif self.strategy == 'uniform':
             pass
+    
+    @property
+    def length(self):
+        return self.solution.depth
 
