@@ -62,10 +62,12 @@ class SearchProblem:
 
 # Nos de uma arvore de pesquisa
 class SearchNode:
-    def __init__(self,state,parent): 
+    def __init__(self,state,parent,cost=0): 
         self.state = state
         self.parent = parent
         self.depth = 0	
+        self.cost = cost  # Novo atributo para armazenar o custo acumulado~
+        self.heuristic = 0  # Novo atributo para armazenar a heurística
     def __str__(self):
         return "no(" + str(self.state) + "," + str(self.parent) + ")"
     def __repr__(self):
@@ -88,26 +90,34 @@ class SearchTree:
             return [node.state]
         path = self.get_path(node.parent)
         path += [node.state]
-        node.depth = len(path) - 1
         return(path)
 
     # procurar a solucao
-    def search(self,limit=9):
+    def search(self, limit=None):
+        self.terminals = 0
+        self.non_terminals = 0
 
         while self.open_nodes != []:
             node = self.open_nodes.pop(0)
             if self.problem.goal_test(node.state):
                 self.solution = node
+                self.terminals = len(self.open_nodes) + 1
                 return self.get_path(node)
+            self.non_terminals += 1
             lnewnodes = []
 
-            if node.depth <= limit:
+            if limit == None or node.depth < limit:
                 for a in self.problem.domain.actions(node.state):
-                    newstate = self.problem.domain.result(node.state,a)
-                    newnode = SearchNode(newstate,node)
+                    newstate = self.problem.domain.result(node.state, a)
+                    action_cost = self.problem.domain.cost(node.state, a)
+                    new_accumulated_cost = node.cost + action_cost  # Calcula o custo acumulado
+                    newnode = SearchNode(newstate, node, new_accumulated_cost)  # Passa o custo acumulado para o nó filho
                     if newstate not in self.get_path(node):
+                        newnode.heuristic = self.problem.domain.heuristic(newstate, self.problem.goal)
+                        newnode.depth = node.depth + 1
                         lnewnodes.append(newnode)
                 self.add_to_open(lnewnodes)
+
         return None
 
     # juntar novos nos a lista de nos abertos de acordo com a estrategia
@@ -117,9 +127,21 @@ class SearchTree:
         elif self.strategy == 'depth':
             self.open_nodes[:0] = lnewnodes
         elif self.strategy == 'uniform':
-            pass
+            self.open_nodes = sorted(self.open_nodes + lnewnodes, key=lambda node: node.cost)
+        elif self.strategy == 'greedy':
+            self.open_nodes = sorted(self.open_nodes + lnewnodes, key=lambda node: node.heuristic)
+        
     
     @property
     def length(self):
         return self.solution.depth
-
+    
+    @property
+    def avg_branching(self):
+        if self.non_terminals == 0:
+            return 0
+        return (self.terminals + self.non_terminals - 1) / self.non_terminals
+    
+    @property
+    def cost(self):
+        return self.solution.cost

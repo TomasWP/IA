@@ -29,9 +29,15 @@ class Cidades(SearchDomain):
         if C1==city:
             return C2
     def cost(self, city, action):
-        pass
+        c1, c2 = action
+        for (C1, C2, D) in self.connections:
+            if (C1 == c1 and C2 == c2) or (C1 == c2 and C2 == c1):
+                return D  # Retorna o custo (distância) da conexão entre as cidades
+        return None  # Retorna None se a ação não estiver presente nas conexões
     def heuristic(self, city, goal_city):
-        pass
+        x1, y1 = self.coordinates[city]
+        x2, y2 = self.coordinates[goal_city]
+        return ((x1-x2)**2 + (y1-y2)**2)**(1/2)
     def satisfies(self, city, goal_city):
         return goal_city==city
 
