@@ -83,6 +83,11 @@ class SearchTree:
         self.open_nodes = [root]
         self.strategy = strategy
         self.solution = None
+        self.terminals = 0
+        self.non_terminals = 0
+        self.highest_cost_nodes = []
+        self.average_depth = 0
+
 
     # obter o caminho (sequencia de estados) da raiz ate um no
     def get_path(self,node):
@@ -102,6 +107,7 @@ class SearchTree:
             if self.problem.goal_test(node.state):
                 self.solution = node
                 self.terminals = len(self.open_nodes) + 1
+                self.average_depth /= self.terminals + self.non_terminals
                 return self.get_path(node)
             self.non_terminals += 1
             lnewnodes = []
@@ -116,6 +122,11 @@ class SearchTree:
                         newnode.heuristic = self.problem.domain.heuristic(newstate, self.problem.goal)
                         newnode.depth = node.depth + 1
                         lnewnodes.append(newnode)
+                        self.average_depth += newnode.depth
+                        if len(self.highest_cost_nodes) == 0 or newnode.cost == self.highest_cost_nodes[0].cost:
+                            self.highest_cost_nodes.append(newnode)
+                        elif newnode.cost > self.highest_cost_nodes[0].cost:
+                            self.highest_cost_nodes = [newnode]
                 self.add_to_open(lnewnodes)
 
         return None
@@ -130,6 +141,8 @@ class SearchTree:
             self.open_nodes = sorted(self.open_nodes + lnewnodes, key=lambda node: node.cost)
         elif self.strategy == 'greedy':
             self.open_nodes = sorted(self.open_nodes + lnewnodes, key=lambda node: node.heuristic)
+        elif self.strategy == 'a*':
+            self.open_nodes = sorted(self.open_nodes + lnewnodes, key=lambda node: node.cost + node.heuristic)
         
     
     @property
