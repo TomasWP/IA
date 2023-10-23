@@ -93,8 +93,7 @@ class STRIPS(SearchDomain):
     # Result of a given "action" in a given "state"
     # ( returns None, if the action is not applicable in the state)
     def result(self, state, action):
-        pass
-
+        return None    
     def cost(self, state, action):
         return 1
 
@@ -103,7 +102,8 @@ class STRIPS(SearchDomain):
 
     # Checks if a given "goal" is satisfied in a given "state"
     def satisfies(self, state, goal):
-        pass
+        # Check if all goal literals are in the state
+        return all(g in state for g in goal)
 
 
 
