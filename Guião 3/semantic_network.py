@@ -95,5 +95,19 @@ class SemanticNetwork:
     def show_query_result(self):
         for d in self.query_result:
             print(str(d))
-
-
+    def list_associations(self):
+        return sorted({ d.relation.name for d in self.declarations if type(d.relation)==Association })
+    def list_objects(self):
+        return sorted({ d.relation.entity1 for d in self.declarations if type(d.relation)==Member })
+    def list_users(self):
+        return sorted({ d.user for d in self.declarations })
+    def list_types(self):
+        return sorted(list(set([d.relation.entity2 for d in self.declarations if type(d.relation)==Member] + [d.relation.entity1 for d in self.declarations if type(d.relation)==Subtype] + [d.relation.entity2 for d in self.declarations if type(d.relation)==Subtype])))
+    def list_local_associations(self,obj):
+        return sorted({ d.relation.name for d in self.declarations if type(d.relation)==Association and d.relation.entity1==obj })
+    def list_relations_by_user(self,user):
+        return sorted({ d.relation.name for d in self.declarations if d.user==user })
+    def associations_by_user(self,user):
+        return len(sorted({ d.relation.name for d in self.declarations if type(d.relation)==Association and d.user==user }))
+    def list_local_associations_by_entity(self,obj):
+        return sorted(list(set([(d.relation.name,d.user) for d in self.declarations if type(d.relation)==Association and d.relation.entity1==obj])))
