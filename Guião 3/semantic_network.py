@@ -111,5 +111,23 @@ class SemanticNetwork:
         return len(sorted({ d.relation.name for d in self.declarations if type(d.relation)==Association and d.user==user }))
     def list_local_associations_by_entity(self,obj):
         return sorted(list(set([(d.relation.name,d.user) for d in self.declarations if type(d.relation)==Association and d.relation.entity1==obj])))
-    def predecessor(self,obj,rel):
-        return sorted({ d.relation.entity1 for d in self.declarations if type(d.relation)==Association and d.relation.entity2==obj and d.relation.name==rel })
+    def predecessor(self,entity1,entity2):
+
+        if entity1 == entity2:
+            return True
+        if entity1 not in self.list_types():
+            return False
+        for declaration in self.declarations:
+             if declaration.relation.entity1 == entity2 and isinstance(declaration.relation, Member):
+                return True
+        return False
+    def predecessor_path(self,entity1,entity2):
+
+        pds = [d.relation.entity2 for d in self.declarations if (isinstance(d.relation, Member) or isinstance(d.relation, Subtype)) and d.relation.entity1 == entity2]
+        if entity1 in pds:
+            return [entity1, entity2]
+        for declaration in pds:
+             path = self.predecessor_path(entity1, declaration)
+             if path is not None:
+                 return  path+[entity2]
+        
