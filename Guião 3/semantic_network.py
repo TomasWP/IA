@@ -111,3 +111,5 @@ class SemanticNetwork:
         return len(sorted({ d.relation.name for d in self.declarations if type(d.relation)==Association and d.user==user }))
     def list_local_associations_by_entity(self,obj):
         return sorted(list(set([(d.relation.name,d.user) for d in self.declarations if type(d.relation)==Association and d.relation.entity1==obj])))
+    def predecessor(self,obj,rel):
+        return sorted({ d.relation.entity1 for d in self.declarations if type(d.relation)==Association and d.relation.entity2==obj and d.relation.name==rel })
