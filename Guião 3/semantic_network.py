@@ -130,4 +130,41 @@ class SemanticNetwork:
              path = self.predecessor_path(entity1, declaration)
              if path is not None:
                  return  path+[entity2]
-        
+             
+    def query_local(self,user=None,e1=None,rel=None,e2=None):
+        self.query_result = \
+            [ d for d in self.declarations
+                if  (user == None or d.user==user)
+                and (e1 == None or d.relation.entity1 == e1)
+                and (rel == None or d.relation.name == rel)
+                and (e2 == None or d.relation.entity2 == e2) 
+            ]
+        return self.query_result
+    def query(self, entity, ass_name=None):
+        declarations = [declaration for declaration in self.declarations
+                        if not isinstance(declaration.relation, Association)
+                        and declaration.relation.entity1 == entity
+                        ]
+        associations = [association for association in self.query_local(e1=entity, rel=ass_name)
+                        if isinstance(association.relation, Association)]
+        for declaration in declarations:
+            associations += self.query(declaration.relation.entity2, ass_name)
+        return associations
+    def query2(self, entity, ass_name=None):
+
+        local = [query for query in self.query_local(e1=entity, rel=ass_name)
+                    if isinstance(query.relation, Member) or isinstance(query.relation, Subtype)
+                ]
+
+        herdadas = self.query(entity=entity, ass_name=ass_name)
+
+        return local+herdadas
+    
+    def query_cancel(self, entity, relation):
+        self.query_result = [
+            d for d in self.declarations
+            if isinstance(d.relation, Association)
+            and d.relation.entity1 == entity
+            and d.relation.name == relation
+        ]
+        return self.query_result
