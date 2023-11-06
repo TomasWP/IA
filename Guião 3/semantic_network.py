@@ -160,11 +160,29 @@ class SemanticNetwork:
 
         return local+herdadas
     
-    def query_cancel(self, entity, relation):
-        self.query_result = [
-            d for d in self.declarations
-            if isinstance(d.relation, Association)
-            and d.relation.entity1 == entity
-            and d.relation.name == relation
-        ]
-        return self.query_result
+    def query_cancel(self, entity, association_name):
+        ldeclartions = self.query_local(e1=entity)
+        lparents = [ d.relation.entity2 for d in ldeclartions if not isinstance(d.relation, Association) ]
+
+        lassoc = [ d for d in ldeclartions if isinstance(d.relation, Association) and d.relation.name == association_name ]
+        
+        if lassoc == []:
+            for p in lparents:
+                lassoc += self.query_cancel(p, association_name)
+
+        print(f'lassoc: {lassoc}')
+        return lassoc
+    
+    def query_down(self, entity, association_name, child=False):
+        ldeclartions = self.query_local(e2=entity)
+        lchildren = [ d.relation.entity1 for d in ldeclartions if not isinstance(d.relation, Association) ]
+
+        lassoc = []
+        if child:
+            lassoc = [ d for d in self.query_local(e1=entity) if isinstance(d.relation, Association) 
+                                                                and d.relation.name == association_name ]
+    
+        for c in lchildren:
+            lassoc += self.query_down(c, association_name, child=True)
+
+        return lassoc
