@@ -17,6 +17,9 @@
 #     - Member      - uma relacao de pertenca de uma instancia a um tipo
 #
 
+from collections import Counter
+
+
 class Relation:
     def __init__(self,e1,rel,e2):
         self.entity1 = e1
@@ -67,6 +70,15 @@ class Declaration:
         return "decl("+str(self.user)+","+str(self.relation)+")"
     def __repr__(self):
         return str(self)
+    
+class AssocOne(Relation):
+    def __init__(self,e1,assoc,e2):
+        Relation.__init__(self,e1,assoc,e2)
+
+class AssocNum(Relation):
+    def __init__(self,e1,assoc,e2):
+        Relation.__init__(self,e1,assoc,float(e2))
+
 
 #   Exemplos:
 #   da = Declaration('descartes',a)
@@ -84,13 +96,14 @@ class SemanticNetwork:
         return str(self.declarations)
     def insert(self,decl):
         self.declarations.append(decl)
-    def query_local(self,user=None,e1=None,rel=None,e2=None):
+    def query_local(self,user=None,e1=None,rel=None,e2=None, rel_type=None):
         self.query_result = \
             [ d for d in self.declarations
                 if  (user == None or d.user==user)
                 and (e1 == None or d.relation.entity1 == e1)
                 and (rel == None or d.relation.name == rel)
-                and (e2 == None or d.relation.entity2 == e2) ]
+                and (e2 == None or d.relation.entity2 == e2)
+                and (rel_type == None or isinstance(d.relation, rel_type)) ]
         return self.query_result
     def show_query_result(self):
         for d in self.query_result:
@@ -186,3 +199,96 @@ class SemanticNetwork:
             lassoc += self.query_down(c, association_name, child=True)
 
         return lassoc
+    
+    def all_descendants(self, rel):
+        # Similar to all_predecessors, but in reverse direction
+        visited = set()
+
+        def dfs(entity):
+            if entity in visited:
+                return []
+            visited.add(entity)
+            descendants = []
+            for d in self.declarations:
+                if type(d.relation) in [Member, Subtype] and d.relation.entity1 == entity:
+                    descendants.append(d.relation.entity2)
+                    descendants.extend(dfs(d.relation.entity2))
+            return descendants
+
+        return dfs(rel)
+
+    def query_induce(self, entity, assocName):
+        query = self.query_down(entity, assocName)
+
+        if not query:
+            return None
+
+        # Start counter for association values (entity2)
+        c = Counter([d.relation.entity2 for d in query])
+        
+        # Return the most common one        
+        return c.most_common(1)[0][0]
+        
+    def query_local_assoc(self, entity, assocName):
+        # Make local query for assoName Associations for entity
+        localQueryAssoc = self.query_local(e1=entity, rel=assocName, rel_type=(Association, AssocOne, AssocNum))
+
+        # Get values for entity
+        values = [d.relation.entity2 for d in localQueryAssoc]
+
+        if not localQueryAssoc:
+            pass
+
+        elif isinstance(localQueryAssoc[0].relation, AssocOne):
+            # Get most common
+            val, count = Counter(values).most_common(1)[0]
+            # Return most frequent value and its frequency
+            return (val, count/len(values))
+
+        elif isinstance(localQueryAssoc[0].relation, AssocNum):
+            # Find average value
+            return sum(values)/len(values)
+
+        elif isinstance(localQueryAssoc[0].relation, Association):
+            # Get most common
+            mc = Counter(values).most_common()
+            # Return list of frequencies
+            # Only return  values until frequency sum reaches 0.75
+            frequencies = []
+            frequency = 0
+            for val, count in mc:
+                frequencies.append((val, count/len(localQueryAssoc)))
+                frequency += count/len(localQueryAssoc)
+                if frequency >= 0.75:
+                    return frequencies
+        
+        return None
+
+    # 2.16.
+    def query_assoc_value(self, entity, assocName):
+        # Make local query for assocName Associations for entity
+        localQueryAssoc = self.query_local(e1=entity, rel=assocName, rel_type=(Association, AssocOne, AssocNum))
+
+        # Get values for entity
+        lvalues = [d.relation.entity2 for d in localQueryAssoc]
+
+        # a) If all local associations have the same value, return it
+        if len(set(lvalues)) == 1:
+            return lvalues[0]
+
+        # b) Otherwise, ...
+        # Get predecessor values
+        predecessorsPlusLocal = self.query(entity=entity, rel=assocName)
+        # Because it includes locals, remove them
+        predecessors = [a for a in predecessorsPlusLocal if a not in localQueryAssoc]
+        # Get values from relations (entity2)
+        pvalues = [p.relation.entity2 for p in predecessors]
+
+        # Define method to find the percentage of a value inside a list of values
+        def perc(list, value):
+            if list == []: return 0
+            return len([l for l in list if l ==  value]) / len(list)
+        
+        # Return the most common value between local and predecessor relations 
+        return max(lvalues + pvalues, key=lambda v: (perc(lvalues, v) + perc(pvalues, v)) / 2)
+        
