@@ -35,22 +35,25 @@ class ConstraintSearch:
             # se valores violam restricoes, falha
             # ( verificacao desnecessaria se for feita a propagacao
             #   de restricoes )
-            for (var1,var2) in self.constraints:
-                constraint = self.constraints[var1,var2]
-                if not constraint(var1,domains[var1][0],var2,domains[var2][0]):
-                    return None 
+#            for (var1,var2) in self.constraints:
+#                constraint = self.constraints[var1,var2]
+#                if not constraint(var1,domains[var1][0],var2,domains[var2][0]):
+#                    return None 
             return { v:lv[0] for (v,lv) in domains.items() }
        
         # continuação da pesquisa
-        # ( falta fazer a propagacao de restricoes )
+        # ( falta fazer a propagacao de restricoes ) já não
         for var in domains.keys():
             if len(domains[var])>1:
                 for val in domains[var]:
                     newdomains = dict(domains)
                     newdomains[var] = [val]
+
+                    for neighbour in [n for n,v in self.constraints if v==var]:
+                        constraint = self.constraints[neighbour, var]
+                        newdomains[neighbour] = [x for x in domains[neighbour] if constraint(neighbour, x, var, val)]
+
                     solution = self.search(newdomains)
                     if solution != None:
                         return solution
         return None
-
-
