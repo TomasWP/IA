@@ -19,6 +19,22 @@
 
 from collections import Counter
 
+# Guiao de representacao do conhecimento
+# -- Redes semanticas
+# 
+# Inteligencia Artificial & Introducao a Inteligencia Artificial
+# DETI / UA
+#
+# (c) Luis Seabra Lopes, 2012-2020
+# v1.9 - 2019/10/20
+#
+
+
+# Classe Relation, com as seguintes classes derivadas:
+#     - Association - uma associacao generica entre duas entidades
+#     - Subtype     - uma relacao de subtipo entre dois tipos
+#     - Member      - uma relacao de pertenca de uma instancia a um tipo
+#
 
 class Relation:
     def __init__(self,e1,rel,e2):
@@ -37,6 +53,14 @@ class Relation:
 class Association(Relation):
     def __init__(self,e1,assoc,e2):
         Relation.__init__(self,e1,assoc,e2)
+
+class AssocOne(Relation):
+    def __init__(self,e1,assoc,e2):
+        Relation.__init__(self,e1,assoc,e2)
+
+class AssocNum(Relation):
+    def __init__(self,e1,assoc,e2):
+        Relation.__init__(self,e1,assoc,float(e2))
 
 #   Exemplo:
 #   a = Association('socrates','professor','filosofia')
@@ -70,16 +94,6 @@ class Declaration:
         return "decl("+str(self.user)+","+str(self.relation)+")"
     def __repr__(self):
         return str(self)
-    
-class AssocOne(Relation):
-    def __init__(self,e1,assoc,e2):
-        Relation.__init__(self,e1,assoc,e2)
-
-class AssocNum(Relation):
-    def __init__(self,e1,assoc,e2):
-        Relation.__init__(self,e1,assoc,float(e2))
-
-
 #   Exemplos:
 #   da = Declaration('descartes',a)
 #   ds = Declaration('darwin',s)
@@ -103,192 +117,143 @@ class SemanticNetwork:
                 and (e1 == None or d.relation.entity1 == e1)
                 and (rel == None or d.relation.name == rel)
                 and (e2 == None or d.relation.entity2 == e2)
-                and (rel_type == None or isinstance(d.relation, rel_type)) ]
+                and (rel_type == None or isinstance(d.relation, rel_type))
+            ]
         return self.query_result
     def show_query_result(self):
         for d in self.query_result:
             print(str(d))
+
     def list_associations(self):
-        return sorted({ d.relation.name for d in self.declarations if type(d.relation)==Association })
+        return list(set([d.relation.name for d in self.declarations if isinstance(d.relation, Association)]))
+
     def list_objects(self):
-        return sorted({ d.relation.entity1 for d in self.declarations if type(d.relation)==Member })
+        return list(set([d.relation.entity1 for d in self.declarations if isinstance(d.relation, Member)]))
+
     def list_users(self):
-        return sorted({ d.user for d in self.declarations })
+        return list(set([d.user for d in self.declarations]))
+
     def list_types(self):
-        return sorted(list(set([d.relation.entity2 for d in self.declarations if type(d.relation)==Member] + [d.relation.entity1 for d in self.declarations if type(d.relation)==Subtype] + [d.relation.entity2 for d in self.declarations if type(d.relation)==Subtype])))
-    def list_local_associations(self,obj):
-        return sorted({ d.relation.name for d in self.declarations if type(d.relation)==Association and d.relation.entity1==obj })
-    def list_relations_by_user(self,user):
-        return sorted({ d.relation.name for d in self.declarations if d.user==user })
-    def associations_by_user(self,user):
-        return len(sorted({ d.relation.name for d in self.declarations if type(d.relation)==Association and d.user==user }))
-    def list_local_associations_by_entity(self,obj):
-        return sorted(list(set([(d.relation.name,d.user) for d in self.declarations if type(d.relation)==Association and d.relation.entity1==obj])))
-    def predecessor(self,entity1,entity2):
+        l1 = [d.relation.entity2 for d in self.declarations if isinstance(d.relation, (Member, Subtype))]
+        l2 = [d.relation.entity1 for d in self.declarations if isinstance(d.relation, Subtype)]
+        return list(set(l1+l2))
 
-        if entity1 == entity2:
-            return True
-        if entity1 not in self.list_types():
-            return False
-        for declaration in self.declarations:
-             if declaration.relation.entity1 == entity2 and isinstance(declaration.relation, Member):
-                return True
-        return False
-    def predecessor_path(self,entity1,entity2):
+    def list_local_associations(self, entity):
+        return list(set([d.relation.name for d in self.declarations if (isinstance(d.relation, Association) and (d.relation.entity1==entity or d.relation.entity2==entity))]))
 
-        pds = [d.relation.entity2 for d in self.declarations if (isinstance(d.relation, Member) or isinstance(d.relation, Subtype)) and d.relation.entity1 == entity2]
-        if entity1 in pds:
-            return [entity1, entity2]
-        for declaration in pds:
-             path = self.predecessor_path(entity1, declaration)
-             if path is not None:
-                 return  path+[entity2]
-             
-    def query_local(self,user=None,e1=None,rel=None,e2=None):
-        self.query_result = \
-            [ d for d in self.declarations
-                if  (user == None or d.user==user)
-                and (e1 == None or d.relation.entity1 == e1)
-                and (rel == None or d.relation.name == rel)
-                and (e2 == None or d.relation.entity2 == e2) 
-            ]
-        return self.query_result
-    def query(self, entity, ass_name=None):
-        declarations = [declaration for declaration in self.declarations
-                        if not isinstance(declaration.relation, Association)
-                        and declaration.relation.entity1 == entity
-                        ]
-        associations = [association for association in self.query_local(e1=entity, rel=ass_name)
-                        if isinstance(association.relation, Association)]
-        for declaration in declarations:
-            associations += self.query(declaration.relation.entity2, ass_name)
-        return associations
-    def query2(self, entity, ass_name=None):
+    def list_relations_by_user(self, user):
+        return list(set([d.relation.name for d in self.declarations if d.user==user]))
 
-        local = [query for query in self.query_local(e1=entity, rel=ass_name)
-                    if isinstance(query.relation, Member) or isinstance(query.relation, Subtype)
-                ]
+    def associations_by_user(self, user):
+        return len(set([d.relation.name for d in self.declarations if isinstance(d.relation, Association) and d.user==user]))
 
-        herdadas = self.query(entity=entity, ass_name=ass_name)
+    def list_local_associations_by_user(self, entity):
+        return list(set([(d.relation.name, d.user) for d in self.declarations if (isinstance(d.relation, Association) and (d.relation.entity1==entity or d.relation.entity2==entity))]))
 
-        return local+herdadas
-    
-    def query_cancel(self, entity, association_name):
-        ldeclartions = self.query_local(e1=entity)
-        lparents = [ d.relation.entity2 for d in ldeclartions if not isinstance(d.relation, Association) ]
+    def predecessor(self, A, B):
+        predec_b = [d.relation.entity2 for d in self.declarations if isinstance(d.relation, (Member, Subtype)) and d.relation.entity1==B]
 
-        lassoc = [ d for d in ldeclartions if isinstance(d.relation, Association) and d.relation.name == association_name ]
+        return A in predec_b or any([self.predecessor(A,p) for p in predec_b])
         
-        if lassoc == []:
-            for p in lparents:
-                lassoc += self.query_cancel(p, association_name)
+    def predecessor_path(self, A, B):
+        predec_b = [d.relation.entity2 for d in self.declarations if isinstance(d.relation, (Member, Subtype)) and d.relation.entity1==B]
 
-        print(f'lassoc: {lassoc}')
-        return lassoc
-    
-    def query_down(self, entity, association_name, child=False):
-        ldeclartions = self.query_local(e2=entity)
-        lchildren = [ d.relation.entity1 for d in ldeclartions if not isinstance(d.relation, Association) ]
+        if A in predec_b:
+            return [A, B]
 
-        lassoc = []
-        if child:
-            lassoc = [ d for d in self.query_local(e1=entity) if isinstance(d.relation, Association) 
-                                                                and d.relation.name == association_name ]
-    
-        for c in lchildren:
-            lassoc += self.query_down(c, association_name, child=True)
+        for path in [self.predecessor_path(A,p) for p in predec_b]:
+            if not path is None:
+                return path + [B]
 
-        return lassoc
-    
-    def all_descendants(self, rel):
-        # Similar to all_predecessors, but in reverse direction
-        visited = set()
+        return None
 
-        def dfs(entity):
-            if entity in visited:
-                return []
-            visited.add(entity)
-            descendants = []
-            for d in self.declarations:
-                if type(d.relation) in [Member, Subtype] and d.relation.entity1 == entity:
-                    descendants.append(d.relation.entity2)
-                    descendants.extend(dfs(d.relation.entity2))
-            return descendants
+    def query(self, entity, assoc_name=None):
+        pds = [self.query(d.relation.entity2, assoc_name) for d in self.declarations if isinstance(d.relation, (Member, Subtype)) and d.relation.entity1==entity]
 
-        return dfs(rel)
+        pds_query = [d for sublist in pds for d in sublist]
 
-    def query_induce(self, entity, assocName):
-        query = self.query_down(entity, assocName)
+        return pds_query + self.query_local(e1=entity, rel=assoc_name, rel_type=Association)
 
-        if not query:
-            return None
+    def query2(self, entity, rel_name=None):
+        q = self.query(entity, rel_name)
 
-        # Start counter for association values (entity2)
-        c = Counter([d.relation.entity2 for d in query])
-        
-        # Return the most common one        
-        return c.most_common(1)[0][0]
-        
-    def query_local_assoc(self, entity, assocName):
-        # Make local query for assoName Associations for entity
-        localQueryAssoc = self.query_local(e1=entity, rel=assocName, rel_type=(Association, AssocOne, AssocNum))
+        return q + self.query_local(e1=entity, rel=rel_name, rel_type=(Member,Subtype))
 
-        # Get values for entity
-        values = [d.relation.entity2 for d in localQueryAssoc]
+    def query_cancel(self, entity, assoc_name):
+        pds = [self.query_cancel(d.relation.entity2, assoc_name) for d in self.declarations if isinstance(d.relation, (Member, Subtype)) and d.relation.entity1==entity]
 
-        if not localQueryAssoc:
-            pass
+        local = self.query_local(e1=entity, rel=assoc_name, rel_type=Association)
 
-        elif isinstance(localQueryAssoc[0].relation, AssocOne):
-            # Get most common
-            val, count = Counter(values).most_common(1)[0]
-            # Return most frequent value and its frequency
-            return (val, count/len(values))
+        pds_query = [d for sublist in pds for d in sublist if d.relation.name not in [l.relation.name for l in local]]
 
-        elif isinstance(localQueryAssoc[0].relation, AssocNum):
-            # Find average value
-            return sum(values)/len(values)
+        return pds_query + local
 
-        elif isinstance(localQueryAssoc[0].relation, Association):
-            # Get most common
-            mc = Counter(values).most_common()
-            # Return list of frequencies
-            # Only return  values until frequency sum reaches 0.75
-            frequencies = []
-            frequency = 0
-            for val, count in mc:
-                frequencies.append((val, count/len(localQueryAssoc)))
-                frequency += count/len(localQueryAssoc)
-                if frequency >= 0.75:
-                    return frequencies
+    def query_down(self, entity, assoc_name=None, first=True):
+        desc = [self.query_down(d.relation.entity1, assoc_name, first=False) for d in self.declarations if isinstance(d.relation, (Member, Subtype)) and d.relation.entity2 == entity]
+
+        desc_query = [ d for sublist in desc for d in sublist]
+
+        if first:
+            return desc_query
+
+        local = self.query_local(e1=entity, rel=assoc_name)
+
+        return desc_query + local
+
+    def query_induce(self, entity, assoc_name):
+        desc = self.query_down(entity, assoc_name)
+
+        for val, _ in Counter([d.relation.entity2 for d in desc]).most_common(1):
+            return val
         
         return None
 
-    # 2.16.
-    def query_assoc_value(self, entity, assocName):
-        # Make local query for assocName Associations for entity
-        localQueryAssoc = self.query_local(e1=entity, rel=assocName, rel_type=(Association, AssocOne, AssocNum))
+    def query_local_assoc(self, entity, assoc_name):
+        local = self.query_local(e1=entity, rel=assoc_name)
 
-        # Get values for entity
-        lvalues = [d.relation.entity2 for d in localQueryAssoc]
+        for l in local:
+            if isinstance(l.relation, AssocNum):
+                values = [d.relation.entity2 for d in local]
+                return sum(values)/len(local)
+            if isinstance(l.relation, AssocOne):
+                val, count = Counter([d.relation.entity2 for d in local]).most_common(1)[0]
+                return val, count/len(local)
+            if isinstance(l.relation, Association):
+                mc = []
+                freq = 0
+                for val, count in Counter([d.relation.entity2 for d in local]).most_common():
+                    mc.append((val, count/len(local)))
+                    freq += count/len(local)
+                    if freq > 0.75:
+                        return mc
 
-        # a) If all local associations have the same value, return it
-        if len(set(lvalues)) == 1:
-            return lvalues[0]
+    def query_assoc_value(self, E, A):
+        local = self.query_local(e1=E, rel=A)
 
-        # b) Otherwise, ...
-        # Get predecessor values
-        predecessorsPlusLocal = self.query(entity=entity, rel=assocName)
-        # Because it includes locals, remove them
-        predecessors = [a for a in predecessorsPlusLocal if a not in localQueryAssoc]
-        # Get values from relations (entity2)
-        pvalues = [p.relation.entity2 for p in predecessors]
+        local_values = [l.relation.entity2 for l in local]
 
-        # Define method to find the percentage of a value inside a list of values
-        def perc(list, value):
-            if list == []: return 0
-            return len([l for l in list if l ==  value]) / len(list)
+        if len(set(local_values)) == 1:
+            return local_values[0]
         
-        # Return the most common value between local and predecessor relations 
-        return max(lvalues + pvalues, key=lambda v: (perc(lvalues, v) + perc(pvalues, v)) / 2)
+        predecessor = [a for a in self.query(entity=E, assoc_name=A) if a not in local]
+
+        predecessor_values = [i.relation.entity2 for i in predecessor]
+
+        def perc(lista, value):
+            if lista == []:
+                return 0
+
+            return len([l for l in lista if l.relation.entity2 == value])/len(lista)
         
+        return max(local_values + predecessor_values, key=lambda v: (perc(local, v)+perc(predecessor, v))/2)
+    # Funcao auxiliar para converter para cadeias de caracteres
+    # listas cujos elementos sejam convertiveis para
+    # cadeias de caracteres
+    def my_list2string(list):
+        if list == []:
+            return "[]"
+        s = "[ " + str(list[0])
+        for i in range(1,len(list)):
+            s += ", " + str(list[i])
+        return s + " ]"
+    
