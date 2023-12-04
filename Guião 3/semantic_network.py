@@ -124,7 +124,7 @@ class SemanticNetwork:
         for d in self.query_result:
             print(str(d))
 
-    def list_associations(self):
+    def list_associations(self):    
         return list(set([d.relation.name for d in self.declarations if isinstance(d.relation, Association)]))
 
     def list_objects(self):
