@@ -168,11 +168,15 @@ class SemanticNetwork:
         return None
 
     def query(self, entity, assoc_name=None):
-        pds = [self.query(d.relation.entity2, assoc_name) for d in self.declarations if isinstance(d.relation, (Member, Subtype)) and d.relation.entity1==entity]
+        ldeclartions = self.query_local(e1=entity)
+        lparents = [ d.relation.entity2 for d in ldeclartions if not isinstance(d.relation, Association) ]
 
-        pds_query = [d for sublist in pds for d in sublist]
-
-        return pds_query + self.query_local(e1=entity, rel=assoc_name, rel_type=Association)
+        self.query_result = [ d for d in ldeclartions if isinstance(d.relation, Association) 
+                                            and (d.relation.name == assoc_name or assoc_name == None) ]
+        
+        for p in lparents:
+            self.query_result += self.query(p, assoc_name)
+        return self.query_result
 
     def query2(self, entity, rel_name=None):
         q = self.query(entity, rel_name)
