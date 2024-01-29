@@ -1,0 +1,129 @@
+1. PDDL é uma linguagem para:
+
+a) Representação de conhecimento de propósito geral em lógica de primeira ordem
+b) Representação de conhecimento puramente proposicional
+c) Representação de ações para planeamento em termos de fórmulas atómicas
+d) Representação de ações para planeamento com efeitos condicionais
+e) Nenhuma das anteriores
+
+R: d) Representação de ações para planeamento com efeitos condicionais
+
+--------------------------------------------------------------------------------------
+
+2. Os algoritmos genéticos diferem da pesquisa local alargada no seguinte:
+
+a) A pesquisa local alargada aumenta o número de soluções a cada iteração do algoritmo enquanto os algoritmos genéticos mantêm um número fixo de soluções
+b) Os algoritmos genéticos combinam as soluções aos pares enquanto a pesquisa local alargada pode combinar duas ou mais soluções
+c) Os algoritmos genéticos combinam as soluções aos pares enquanto a pesquisa local alargada se limita a modificar as soluções sem as combinar
+d) A pesquisa local alargada seleciona aleatoriamente um número fixo de soluções para a iteração seguinta enquanto os algoritmos genéticos são determinísticos
+e) Nenhuma das anteriores
+
+R: d) A pesquisa local alargada seleciona aleatoriamente um número fixo de soluções para a iteração seguinta enquanto os algoritmos genéticos são determinísticos
+
+--------------------------------------------------------------------------------------
+
+3. KIF é uma linguagem desenhada para:
+
+a) Representação do conhecimento puramente proposicional
+b) Representação de ações para planeamento
+c) Troca de conhecimento entre agentes
+d) Representação do conhecimento em robótica inteligente
+e) Nenhuma das anteriores
+
+R: c) Troca de conhecimento entre agentes
+
+--------------------------------------------------------------------------------------
+
+*4. Relativamente às redes semânticas, indique a afirmação verdadeira:
+
+a) Não é possível representar hierarquias de tipos
+b) Qualquer tipo de rede semântica permite representar conhecimento por omissão
+c) Nenhum tipo de rede semântica permite representar a negação ou a disjunção
+d) A rede semântica estudada na componente prática da disciplina é tão expressiva como lógica de primeira ordem
+e) Nenhuma das anteriores
+
+R: d) A rede semântica estudada na componente prática da disciplina é tão expressiva como lógica de primeira ordem
+
+--------------------------------------------------------------------------------------
+
+5. Sobre o cenário conhecido como "sala chinesa", proposto por J. Searl, pode-se dizer que:
+
+a) É um cenário de aplicação para protótipos de agentes deliberativos
+b) Pretende demonstrar que é impossível desenvolver agentes com a capacidade de compreensão simbólica
+c) É um exemplo de aplicação de redes semânticas
+d) É o cenário preferencial para o teste de Turing sobre comportamento inteligente
+e) Nenhuma das anteriores
+
+R: b) Pretende demonstrar que é impossível desenvolver agentes com a capacidade de compreensão simbólica
+
+--------------------------------------------------------------------------------------
+
+6. A pesquisa com propagação de restrições:
+
+a) Termina quando a função de avaliação atinge o mínimo global
+b) Termina quando a função de avaliação atinge um máximo local
+c) Serve para resolver problemas de atribuição de valores a variáveis
+d) Utiliza restrições expressas em lógica de primeira ordem
+e) Nenhuma das anteriores
+
+R: c) Serve para resolver problemas de atribuição de valores a variáveis
+
+--------------------------------------------------------------------------------------
+
+7. No contexto da avaliação das técnicas de aprendizagem supervisionada para classificação, a técnica um-de-fora (have-one-out) consiste em:
+
+a) Treinar com N-1 exemplos e testar no exemplo que foi deixado de fora
+b) Treinar com K-1 subconjuntos de exemplos e testar no subconjunto que foi deixado de fora
+c) Treinar com K-1 subconjuntos de exemplos e testar em cada um dos exemplos do subconjunto que ficou de fora
+d) Para cada exemplo X, treinar com os restantes exemplos e testar em X, calculando a percentagem de classificações
+e) Nenhuma das anteriores
+
+R: a) Treinar com N-1 exemplos e testar no exemplo que foi deixado de fora
+
+--------------------------------------------------------------------------------------
+
+8. A principal diferença entre aprendizagem de regras e aprendizagem de árvores de decisão é:
+
+a) As regras usam atributos simbólicos enquanto as árvores usam atributos numéricos
+b) Em cada iteração, a geração de uma árvore seleciona um atributo para testar, considerando os vários valores possíveis, enquanto a geração de regras seleciona um teste de tributo, considerando apenas um dos vários valores
+c) Em cada iteração, a geração de uma árvore seleciona um teste de tributo, considerando apenas um dos vários valores possíveis, enquanto a geração de regras seleciona um atributo para testar, considerando os vários valores
+d) O algoritmo de geração de árvores gera uma árvore diferente para cada classe enquanto o algoritmo de geração de regras gera um conjunto de todas as classes
+e) Nenhuma das anteriores
+
+R: c) Em cada iteração, a geração de uma árvore seleciona um teste de tributo, considerando apenas um dos vários valores possíveis, enquanto a geração de regras seleciona um atributo para testar, considerando os vários valores
+
+--------------------------------------------------------------------------------------
+
+9. Relativamente às redes de Bayes, indique a afirmação verdadeira
+
+a) Não permitem representar conhecimento impreciso
+b) São representadas por grafos não dirigidos
+c) Permitem representar as dependências entre as várias de um problema
+d) Permitem representar relações de herança entre entidades
+e) Nenhuma das anteriores
+
+R: c) Permitem representar as dependências entre as várias de um problema
+
+--------------------------------------------------------------------------------------
+
+*10. Relativamente às redes semânticas, indique a afirmação verdadeira
+
+a) Não é possível representar hierarquias de tipos
+b) Permitem representar conhecimento por omissão
+c) Nenhum tipo de rede semântica permite representar a negação ou a disjunção
+d) A rede semântica estudada na componente prática da disciplina é tão expressiva como a lógica de primeira ordem
+e) Nenhuma das anteriores
+
+R: b) Permitem representar conhecimento por omissão
+
+--------------------------------------------------------------------------------------
+
+11. O algoritmo de pesquisa em grafo (graph-search) difere do algoritmo de pesquisa em árvore (tree-search) em
+
+a) A pesquisa em grafo utiliza-se transições sempre na forma de operadores STRIPS
+b) A pesquisa em grafo trabalha com um grafo de restrições
+c) A pesquisa em grafo não cria nós com estados repetidos no caminho de cada nó até à raiz
+d) A pesquisa em grafo é completa e ótima
+e) Nenhuma das anteriores
+
+R: c) A pesquisa em grafo não cria nós com estados repetidos no caminho de cada nó até à raiz
